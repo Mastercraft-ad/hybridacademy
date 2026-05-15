@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Nigerian School Report Card Generator"
+version = "1.0.0"
+id = "artifacts/school-report"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22739
+
+[services.development]
+run = "pnpm --filter @workspace/school-report run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/school-report", "run", "build" ]
+publicDir = "artifacts/school-report/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22739"
+BASE_PATH = "/"

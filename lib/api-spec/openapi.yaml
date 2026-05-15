@@ -1,0 +1,1327 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Nigerian School Report Card Generator API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: schools
+    description: School management
+  - name: classes
+    description: Class management
+  - name: students
+    description: Student management
+  - name: terms
+    description: Academic term management
+  - name: subjects
+    description: Subject management
+  - name: scores
+    description: Subject score entry
+  - name: reportcards
+    description: Report card management
+  - name: grading
+    description: Grading configuration
+  - name: psychomotor
+    description: Psychomotor traits management
+  - name: dashboard
+    description: Dashboard and summary stats
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ─── SCHOOLS ────────────────────────────────────────────────────────────────
+  /schools:
+    get:
+      operationId: listSchools
+      tags: [schools]
+      summary: List all schools
+      responses:
+        "200":
+          description: List of schools
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/School"
+    post:
+      operationId: createSchool
+      tags: [schools]
+      summary: Create a school
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SchoolInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/School"
+
+  /schools/{id}:
+    get:
+      operationId: getSchool
+      tags: [schools]
+      summary: Get a school by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: School
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/School"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateSchool
+      tags: [schools]
+      summary: Update a school
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SchoolUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/School"
+    delete:
+      operationId: deleteSchool
+      tags: [schools]
+      summary: Delete a school
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── CLASSES ────────────────────────────────────────────────────────────────
+  /schools/{schoolId}/classes:
+    get:
+      operationId: listClasses
+      tags: [classes]
+      summary: List classes for a school
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of classes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Class"
+    post:
+      operationId: createClass
+      tags: [classes]
+      summary: Create a class
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClassInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+
+  /classes/{id}:
+    patch:
+      operationId: updateClass
+      tags: [classes]
+      summary: Update a class
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClassUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+    delete:
+      operationId: deleteClass
+      tags: [classes]
+      summary: Delete a class
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── STUDENTS ───────────────────────────────────────────────────────────────
+  /schools/{schoolId}/students:
+    get:
+      operationId: listStudents
+      tags: [students]
+      summary: List students (optionally filter by classId)
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: classId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Student"
+    post:
+      operationId: createStudent
+      tags: [students]
+      summary: Create a student
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+
+  /students/{id}:
+    get:
+      operationId: getStudent
+      tags: [students]
+      summary: Get a student by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateStudent
+      tags: [students]
+      summary: Update a student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+    delete:
+      operationId: deleteStudent
+      tags: [students]
+      summary: Delete a student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── ACADEMIC TERMS ─────────────────────────────────────────────────────────
+  /schools/{schoolId}/terms:
+    get:
+      operationId: listTerms
+      tags: [terms]
+      summary: List academic terms for a school
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of terms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AcademicTerm"
+    post:
+      operationId: createTerm
+      tags: [terms]
+      summary: Create an academic term
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicTermInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcademicTerm"
+
+  /terms/{id}:
+    patch:
+      operationId: updateTerm
+      tags: [terms]
+      summary: Update an academic term
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicTermUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcademicTerm"
+    delete:
+      operationId: deleteTerm
+      tags: [terms]
+      summary: Delete a term
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── SUBJECTS ───────────────────────────────────────────────────────────────
+  /schools/{schoolId}/subjects:
+    get:
+      operationId: listSubjects
+      tags: [subjects]
+      summary: List subjects for a school
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subject"
+    post:
+      operationId: createSubject
+      tags: [subjects]
+      summary: Create a subject
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubjectInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+
+  /subjects/{id}:
+    patch:
+      operationId: updateSubject
+      tags: [subjects]
+      summary: Update a subject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubjectUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+    delete:
+      operationId: deleteSubject
+      tags: [subjects]
+      summary: Delete a subject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── SUBJECT SCORES ─────────────────────────────────────────────────────────
+  /scores:
+    get:
+      operationId: listScores
+      tags: [scores]
+      summary: List scores (filter by termId and optionally classId)
+      parameters:
+        - name: termId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: classId
+          in: query
+          schema:
+            type: integer
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of subject scores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SubjectScore"
+    post:
+      operationId: createScore
+      tags: [scores]
+      summary: Create or update a subject score
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubjectScoreInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectScore"
+
+  /scores/bulk:
+    post:
+      operationId: bulkUpsertScores
+      tags: [scores]
+      summary: Bulk upsert scores for a class/term
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkScoreInput"
+      responses:
+        "200":
+          description: Upserted scores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SubjectScore"
+
+  /scores/{id}:
+    patch:
+      operationId: updateScore
+      tags: [scores]
+      summary: Update a subject score
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubjectScoreUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectScore"
+
+  # ─── GRADING CONFIG ──────────────────────────────────────────────────────────
+  /schools/{schoolId}/grading:
+    get:
+      operationId: listGradeConfigs
+      tags: [grading]
+      summary: List grade configurations for a school
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of grade configs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GradeConfig"
+    post:
+      operationId: createGradeConfig
+      tags: [grading]
+      summary: Create a grade configuration entry
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GradeConfigInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradeConfig"
+
+  /grading/{id}:
+    patch:
+      operationId: updateGradeConfig
+      tags: [grading]
+      summary: Update a grade config entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GradeConfigUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradeConfig"
+    delete:
+      operationId: deleteGradeConfig
+      tags: [grading]
+      summary: Delete a grade config entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── PSYCHOMOTOR TRAITS ──────────────────────────────────────────────────────
+  /schools/{schoolId}/traits:
+    get:
+      operationId: listTraits
+      tags: [psychomotor]
+      summary: List psychomotor traits for a school
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of traits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PsychomotorTrait"
+    post:
+      operationId: createTrait
+      tags: [psychomotor]
+      summary: Create a psychomotor trait
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PsychomotorTraitInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PsychomotorTrait"
+
+  /traits/{id}:
+    patch:
+      operationId: updateTrait
+      tags: [psychomotor]
+      summary: Update a trait
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PsychomotorTraitUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PsychomotorTrait"
+    delete:
+      operationId: deleteTrait
+      tags: [psychomotor]
+      summary: Delete a trait
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /ratings:
+    get:
+      operationId: listRatings
+      tags: [psychomotor]
+      summary: List psychomotor ratings (filter by termId and studentId)
+      parameters:
+        - name: termId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of ratings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PsychomotorRating"
+    post:
+      operationId: upsertRating
+      tags: [psychomotor]
+      summary: Create or update a psychomotor rating
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PsychomotorRatingInput"
+      responses:
+        "200":
+          description: Upserted rating
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PsychomotorRating"
+
+  # ─── REPORT CARDS ────────────────────────────────────────────────────────────
+  /reportcards:
+    get:
+      operationId: listReportCards
+      tags: [reportcards]
+      summary: List report cards (filter by termId, classId, or studentId)
+      parameters:
+        - name: termId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: classId
+          in: query
+          schema:
+            type: integer
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of report cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReportCard"
+
+  /reportcards/generate:
+    post:
+      operationId: generateReportCards
+      tags: [reportcards]
+      summary: Generate/recalculate report cards for a class and term
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateReportCardsInput"
+      responses:
+        "200":
+          description: Generated report cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReportCard"
+
+  /reportcards/{id}:
+    get:
+      operationId: getReportCard
+      tags: [reportcards]
+      summary: Get a single report card with all scores and traits
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Full report card detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportCardDetail"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateReportCard
+      tags: [reportcards]
+      summary: Update report card remarks and attendance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportCardUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportCard"
+
+  # ─── DASHBOARD ───────────────────────────────────────────────────────────────
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get overall dashboard stats for a school and term
+      parameters:
+        - name: schoolId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: termId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/subject-performance:
+    get:
+      operationId: getSubjectPerformance
+      tags: [dashboard]
+      summary: Get average score per subject for a class and term
+      parameters:
+        - name: termId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: classId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Subject performance breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SubjectPerformance"
+
+  /dashboard/top-students:
+    get:
+      operationId: getTopStudents
+      tags: [dashboard]
+      summary: Get top-performing students for a term
+      parameters:
+        - name: termId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: classId
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Top students list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopStudent"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    # ── Schools ──
+    School:
+      type: object
+      required: [id, name, address, motto]
+      properties:
+        id:         { type: integer }
+        name:       { type: string }
+        address:    { type: string }
+        motto:      { type: string }
+        logoUrl:    { type: ["string", "null"] }
+        createdAt:  { type: string }
+    SchoolInput:
+      type: object
+      required: [name, address, motto]
+      properties:
+        name:    { type: string }
+        address: { type: string }
+        motto:   { type: string }
+        logoUrl: { type: string }
+    SchoolUpdate:
+      type: object
+      properties:
+        name:    { type: string }
+        address: { type: string }
+        motto:   { type: string }
+        logoUrl: { type: string }
+
+    # ── Classes ──
+    Class:
+      type: object
+      required: [id, schoolId, name]
+      properties:
+        id:       { type: integer }
+        schoolId: { type: integer }
+        name:     { type: string }
+        section:  { type: ["string", "null"] }
+    ClassInput:
+      type: object
+      required: [name]
+      properties:
+        name:    { type: string }
+        section: { type: string }
+    ClassUpdate:
+      type: object
+      properties:
+        name:    { type: string }
+        section: { type: string }
+
+    # ── Students ──
+    Student:
+      type: object
+      required: [id, schoolId, classId, name, admissionNo]
+      properties:
+        id:           { type: integer }
+        schoolId:     { type: integer }
+        classId:      { type: integer }
+        name:         { type: string }
+        admissionNo:  { type: string }
+        gender:       { type: ["string", "null"] }
+        dateOfBirth:  { type: ["string", "null"] }
+        className:    { type: ["string", "null"] }
+    StudentInput:
+      type: object
+      required: [classId, name, admissionNo]
+      properties:
+        classId:     { type: integer }
+        name:        { type: string }
+        admissionNo: { type: string }
+        gender:      { type: string }
+        dateOfBirth: { type: string }
+    StudentUpdate:
+      type: object
+      properties:
+        classId:     { type: integer }
+        name:        { type: string }
+        admissionNo: { type: string }
+        gender:      { type: string }
+        dateOfBirth: { type: string }
+
+    # ── Academic Terms ──
+    AcademicTerm:
+      type: object
+      required: [id, schoolId, session, term]
+      properties:
+        id:         { type: integer }
+        schoolId:   { type: integer }
+        session:    { type: string }
+        term:       { type: integer }
+        startDate:  { type: ["string", "null"] }
+        endDate:    { type: ["string", "null"] }
+        nextTermBegins: { type: ["string", "null"] }
+    AcademicTermInput:
+      type: object
+      required: [session, term]
+      properties:
+        session:    { type: string }
+        term:       { type: integer }
+        startDate:  { type: string }
+        endDate:    { type: string }
+        nextTermBegins: { type: string }
+    AcademicTermUpdate:
+      type: object
+      properties:
+        session:    { type: string }
+        term:       { type: integer }
+        startDate:  { type: string }
+        endDate:    { type: string }
+        nextTermBegins: { type: string }
+
+    # ── Subjects ──
+    Subject:
+      type: object
+      required: [id, schoolId, name]
+      properties:
+        id:       { type: integer }
+        schoolId: { type: integer }
+        name:     { type: string }
+        code:     { type: ["string", "null"] }
+    SubjectInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        code: { type: string }
+    SubjectUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        code: { type: string }
+
+    # ── Subject Scores ──
+    SubjectScore:
+      type: object
+      required: [id, studentId, subjectId, termId, testScore, examScore, total, grade, remark]
+      properties:
+        id:          { type: integer }
+        studentId:   { type: integer }
+        subjectId:   { type: integer }
+        termId:      { type: integer }
+        testScore:   { type: number }
+        examScore:   { type: number }
+        total:       { type: number }
+        grade:       { type: string }
+        remark:      { type: string }
+        subjectName: { type: ["string", "null"] }
+        studentName: { type: ["string", "null"] }
+    SubjectScoreInput:
+      type: object
+      required: [studentId, subjectId, termId, testScore, examScore]
+      properties:
+        studentId:  { type: integer }
+        subjectId:  { type: integer }
+        termId:     { type: integer }
+        testScore:  { type: number }
+        examScore:  { type: number }
+    SubjectScoreUpdate:
+      type: object
+      properties:
+        testScore: { type: number }
+        examScore: { type: number }
+    BulkScoreInput:
+      type: object
+      required: [termId, scores]
+      properties:
+        termId:  { type: integer }
+        scores:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectScoreInput"
+
+    # ── Grade Config ──
+    GradeConfig:
+      type: object
+      required: [id, schoolId, minScore, maxScore, grade, remark]
+      properties:
+        id:       { type: integer }
+        schoolId: { type: integer }
+        minScore: { type: number }
+        maxScore: { type: number }
+        grade:    { type: string }
+        remark:   { type: string }
+    GradeConfigInput:
+      type: object
+      required: [minScore, maxScore, grade, remark]
+      properties:
+        minScore: { type: number }
+        maxScore: { type: number }
+        grade:    { type: string }
+        remark:   { type: string }
+    GradeConfigUpdate:
+      type: object
+      properties:
+        minScore: { type: number }
+        maxScore: { type: number }
+        grade:    { type: string }
+        remark:   { type: string }
+
+    # ── Psychomotor Traits ──
+    PsychomotorTrait:
+      type: object
+      required: [id, schoolId, name]
+      properties:
+        id:           { type: integer }
+        schoolId:     { type: integer }
+        name:         { type: string }
+        displayOrder: { type: integer }
+    PsychomotorTraitInput:
+      type: object
+      required: [name]
+      properties:
+        name:         { type: string }
+        displayOrder: { type: integer }
+    PsychomotorTraitUpdate:
+      type: object
+      properties:
+        name:         { type: string }
+        displayOrder: { type: integer }
+
+    PsychomotorRating:
+      type: object
+      required: [id, studentId, traitId, termId, rating]
+      properties:
+        id:        { type: integer }
+        studentId: { type: integer }
+        traitId:   { type: integer }
+        termId:    { type: integer }
+        rating:    { type: integer }
+        traitName: { type: ["string", "null"] }
+    PsychomotorRatingInput:
+      type: object
+      required: [studentId, traitId, termId, rating]
+      properties:
+        studentId: { type: integer }
+        traitId:   { type: integer }
+        termId:    { type: integer }
+        rating:    { type: integer }
+
+    # ── Report Cards ──
+    ReportCard:
+      type: object
+      required: [id, studentId, termId, average, position, outOf]
+      properties:
+        id:               { type: integer }
+        studentId:        { type: integer }
+        termId:           { type: integer }
+        average:          { type: number }
+        position:         { type: integer }
+        outOf:            { type: integer }
+        totalScore:       { type: number }
+        daysPresent:      { type: ["integer", "null"] }
+        daysAbsent:       { type: ["integer", "null"] }
+        teacherRemark:    { type: ["string", "null"] }
+        principalRemark:  { type: ["string", "null"] }
+        nextTermBegins:   { type: ["string", "null"] }
+        studentName:      { type: ["string", "null"] }
+        admissionNo:      { type: ["string", "null"] }
+        className:        { type: ["string", "null"] }
+        session:          { type: ["string", "null"] }
+        term:             { type: ["integer", "null"] }
+    ReportCardDetail:
+      type: object
+      required: [id, studentId, termId, average, position, outOf, scores, ratings]
+      properties:
+        id:               { type: integer }
+        studentId:        { type: integer }
+        termId:           { type: integer }
+        average:          { type: number }
+        position:         { type: integer }
+        outOf:            { type: integer }
+        totalScore:       { type: number }
+        daysPresent:      { type: ["integer", "null"] }
+        daysAbsent:       { type: ["integer", "null"] }
+        teacherRemark:    { type: ["string", "null"] }
+        principalRemark:  { type: ["string", "null"] }
+        nextTermBegins:   { type: ["string", "null"] }
+        studentName:      { type: ["string", "null"] }
+        admissionNo:      { type: ["string", "null"] }
+        className:        { type: ["string", "null"] }
+        gender:           { type: ["string", "null"] }
+        session:          { type: ["string", "null"] }
+        term:             { type: ["integer", "null"] }
+        schoolName:       { type: ["string", "null"] }
+        schoolAddress:    { type: ["string", "null"] }
+        schoolMotto:      { type: ["string", "null"] }
+        schoolLogoUrl:    { type: ["string", "null"] }
+        scores:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectScore"
+        ratings:
+          type: array
+          items:
+            $ref: "#/components/schemas/PsychomotorRating"
+    ReportCardUpdate:
+      type: object
+      properties:
+        daysPresent:     { type: integer }
+        daysAbsent:      { type: integer }
+        teacherRemark:   { type: string }
+        principalRemark: { type: string }
+        nextTermBegins:  { type: string }
+    GenerateReportCardsInput:
+      type: object
+      required: [classId, termId]
+      properties:
+        classId: { type: integer }
+        termId:  { type: integer }
+
+    # ── Dashboard ──
+    DashboardSummary:
+      type: object
+      required: [totalStudents, totalClasses, totalSubjects, classAverages]
+      properties:
+        totalStudents:   { type: integer }
+        totalClasses:    { type: integer }
+        totalSubjects:   { type: integer }
+        passRate:        { type: number }
+        schoolAverage:   { type: number }
+        classAverages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClassAverage"
+    ClassAverage:
+      type: object
+      required: [classId, className, average, studentCount]
+      properties:
+        classId:      { type: integer }
+        className:    { type: string }
+        average:      { type: number }
+        studentCount: { type: integer }
+    SubjectPerformance:
+      type: object
+      required: [subjectId, subjectName, average, highestScore, lowestScore]
+      properties:
+        subjectId:    { type: integer }
+        subjectName:  { type: string }
+        average:      { type: number }
+        highestScore: { type: number }
+        lowestScore:  { type: number }
+    TopStudent:
+      type: object
+      required: [studentId, studentName, average, position]
+      properties:
+        studentId:   { type: integer }
+        studentName: { type: string }
+        admissionNo: { type: string }
+        className:   { type: string }
+        average:     { type: number }
+        position:    { type: integer }
